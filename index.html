@@ -356,134 +356,118 @@
             document.getElementById('security-gateway').classList.add('session-blocked');
         }
 
-        // ====== PUZZLE VERIFICATION SYSTEM ======
+        // ====== PUZZLE VERIFICATION SYSTEM - SIMPLIFIED ======
         
-        let puzzleState = {
-            pieceX: 20,
-            pieceY: 15,
-            isDragging: false,
-            startX: 0,
-            startY: 0,
-            targetX: 320,
-            targetThreshold: 40,
-            solved: false
-        };
-
         const canvas = document.getElementById('puzzleCanvas');
         const ctx = canvas.getContext('2d');
-
-        // Set canvas size
-        function resizeCanvas() {
-            const rect = canvas.getBoundingClientRect();
-            canvas.width = rect.width;
-            canvas.height = rect.height;
-            drawPuzzle();
-        }
+        
+        let puzzleState = {
+            pieceX: 0,
+            isDragging: false,
+            startX: 0,
+            solved: false,
+            dragStartX: 0
+        };
 
         function drawPuzzle() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (!canvas) return;
             
-            // Draw background track
+            const width = canvas.offsetWidth;
+            const height = canvas.offsetHeight;
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            const centerY = height / 2;
+            const trackY = centerY - 15;
+            const trackHeight = 30;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+            
+            // Draw track background
             ctx.fillStyle = '#e5e5e5';
-            ctx.fillRect(10, canvas.height / 2 - 15, canvas.width - 20, 30);
+            ctx.fillRect(15, trackY, width - 30, trackHeight);
             
-            // Draw target zone (destination indicator)
-            ctx.fillStyle = '#d1d5db';
-            ctx.fillRect(puzzleState.targetX, canvas.height / 2 - 15, 40, 30);
-            
-            // Draw arrow in target zone
-            ctx.fillStyle = '#999';
+            // Draw target zone
+            const targetX = width - 80;
+            ctx.fillStyle = '#22c55e';
+            ctx.fillRect(targetX, trackY, 50, trackHeight);
+            ctx.fillStyle = 'white';
             ctx.font = 'bold 20px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText('✓', puzzleState.targetX + 20, canvas.height / 2);
+            ctx.fillText('✓', targetX + 25, centerY);
             
-            // Draw puzzle piece
+            // Draw draggable piece
+            const pieceWidth = 50;
+            const pieceHeight = 24;
+            const pieceY = centerY - pieceHeight / 2;
+            
             ctx.fillStyle = '#4f46e5';
-            ctx.beginPath();
-            ctx.roundRect(puzzleState.pieceX, canvas.height / 2 - 12, 40, 24, 4);
-            ctx.fill();
-            
-            // Draw arrow on piece
+            ctx.fillRect(puzzleState.pieceX, pieceY, pieceWidth, pieceHeight);
             ctx.fillStyle = 'white';
             ctx.font = 'bold 18px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText('→', puzzleState.pieceX + 20, canvas.height / 2);
+            ctx.fillText('→', puzzleState.pieceX + pieceWidth / 2, centerY);
             
-            // Draw success state
-            if (puzzleState.solved) {
-                ctx.fillStyle = 'rgba(34, 197, 94, 0.1)';
-                ctx.fillRect(10, canvas.height / 2 - 15, canvas.width - 20, 30);
-            }
+            // Draw border
+            ctx.strokeStyle = '#4f46e5';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(puzzleState.pieceX, pieceY, pieceWidth, pieceHeight);
         }
 
-        // Polyfill for roundRect if not available
-        if (!CanvasRenderingContext2D.prototype.roundRect) {
-            CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
-                if (w < 2 * r) r = w / 2;
-                if (h < 2 * r) r = h / 2;
-                this.beginPath();
-                this.moveTo(x + r, y);
-                this.arcTo(x + w, y, x + w, y + h, r);
-                this.arcTo(x + w, y + h, x, y + h, r);
-                this.arcTo(x, y + h, x, y, r);
-                this.arcTo(x, y, x + r, y, r);
-                this.closePath();
-                return this;
-            };
-        }
-
-        // Mouse/Touch events for puzzle interaction
+        // Mouse events
         canvas.addEventListener('mousedown', (e) => {
             interactionDetected.mouseDown = true;
             if (puzzleState.solved || sessionBlocked) return;
             
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+            const pieceWidth = 50;
+            const centerY = canvas.offsetHeight / 2;
+            const pieceY = centerY - 12;
             
-            // Check if click is within puzzle piece
-            if (x >= puzzleState.pieceX && x <= puzzleState.pieceX + 40 &&
-                y >= canvas.height / 2 - 12 && y <= canvas.height / 2 + 12) {
+            // Check if clicking on piece
+            if (x >= puzzleState.pieceX && x <= puzzleState.pieceX + pieceWidth &&
+                e.clientY - rect.top >= pieceY && e.clientY - rect.top <= pieceY + 24) {
                 puzzleState.isDragging = true;
-                puzzleState.startX = x;
+                puzzleState.startX = x - puzzleState.pieceX;
             }
         });
 
         canvas.addEventListener('mousemove', (e) => {
-            if (puzzleState.isDragging) {
-                interactionDetected.mouseMove = true;
-                if (puzzleState.solved || sessionBlocked) return;
-                
-                const rect = canvas.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const deltaX = x - puzzleState.startX;
-                
-                // Constrain movement
-                puzzleState.pieceX = Math.max(20, Math.min(canvas.width - 70, 20 + deltaX));
-                drawPuzzle();
-            }
+            if (!puzzleState.isDragging) return;
+            interactionDetected.mouseMove = true;
+            if (puzzleState.solved || sessionBlocked) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left - puzzleState.startX;
+            
+            // Constrain within bounds
+            puzzleState.pieceX = Math.max(15, Math.min(canvas.offsetWidth - 65, x));
+            drawPuzzle();
         });
 
         canvas.addEventListener('mouseup', (e) => {
-            interactionDetected.mouseUp = true;
             if (!puzzleState.isDragging) return;
+            interactionDetected.mouseUp = true;
             
             puzzleState.isDragging = false;
             
-            // Check if piece is in target zone
-            if (Math.abs(puzzleState.pieceX - puzzleState.targetX) < puzzleState.targetThreshold) {
+            // Check if piece reached target
+            const targetX = canvas.offsetWidth - 80;
+            if (Math.abs(puzzleState.pieceX - targetX) < 30) {
                 solvePuzzle();
             } else {
-                // Reset piece
-                puzzleState.pieceX = 20;
+                puzzleState.pieceX = 0;
                 drawPuzzle();
                 updatePuzzleStatus('Try again', false);
             }
         });
 
-        // Touch support
+        // Touch events
         canvas.addEventListener('touchstart', (e) => {
             interactionDetected.mouseDown = true;
             if (puzzleState.solved || sessionBlocked) return;
@@ -491,44 +475,47 @@
             const rect = canvas.getBoundingClientRect();
             const touch = e.touches[0];
             const x = touch.clientX - rect.left;
-            const y = touch.clientY - rect.top;
+            const pieceWidth = 50;
+            const centerY = canvas.offsetHeight / 2;
+            const pieceY = centerY - 12;
             
-            if (x >= puzzleState.pieceX && x <= puzzleState.pieceX + 40 &&
-                y >= canvas.height / 2 - 12 && y <= canvas.height / 2 + 12) {
+            if (x >= puzzleState.pieceX && x <= puzzleState.pieceX + pieceWidth &&
+                touch.clientY - rect.top >= pieceY && touch.clientY - rect.top <= pieceY + 24) {
                 puzzleState.isDragging = true;
-                puzzleState.startX = x;
+                puzzleState.startX = x - puzzleState.pieceX;
+                e.preventDefault();
             }
         });
 
         canvas.addEventListener('touchmove', (e) => {
-            if (puzzleState.isDragging) {
-                interactionDetected.mouseMove = true;
-                e.preventDefault();
-                if (puzzleState.solved || sessionBlocked) return;
-                
-                const rect = canvas.getBoundingClientRect();
-                const touch = e.touches[0];
-                const x = touch.clientX - rect.left;
-                const deltaX = x - puzzleState.startX;
-                
-                puzzleState.pieceX = Math.max(20, Math.min(canvas.width - 70, 20 + deltaX));
-                drawPuzzle();
-            }
+            if (!puzzleState.isDragging) return;
+            interactionDetected.mouseMove = true;
+            if (puzzleState.solved || sessionBlocked) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const x = touch.clientX - rect.left - puzzleState.startX;
+            
+            puzzleState.pieceX = Math.max(15, Math.min(canvas.offsetWidth - 65, x));
+            drawPuzzle();
+            e.preventDefault();
         });
 
         canvas.addEventListener('touchend', (e) => {
-            interactionDetected.mouseUp = true;
             if (!puzzleState.isDragging) return;
+            interactionDetected.mouseUp = true;
             
             puzzleState.isDragging = false;
             
-            if (Math.abs(puzzleState.pieceX - puzzleState.targetX) < puzzleState.targetThreshold) {
+            const targetX = canvas.offsetWidth - 80;
+            if (Math.abs(puzzleState.pieceX - targetX) < 30) {
                 solvePuzzle();
             } else {
-                puzzleState.pieceX = 20;
+                puzzleState.pieceX = 0;
                 drawPuzzle();
                 updatePuzzleStatus('Try again', false);
             }
+            e.preventDefault();
         });
 
         function updatePuzzleStatus(message, success = false) {
@@ -787,15 +774,19 @@
 
         // Initialize canvas on page load
         window.addEventListener('load', () => {
-            resizeCanvas();
+            drawPuzzle();
         });
 
         window.addEventListener('resize', () => {
-            resizeCanvas();
+            drawPuzzle();
         });
 
         // Start with canvas initialized
-        resizeCanvas();
+        if (canvas && canvas.offsetWidth > 0) {
+            drawPuzzle();
+        } else {
+            setTimeout(drawPuzzle, 100);
+        }
     </script>
 </body>
 </html>
